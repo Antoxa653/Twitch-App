@@ -1,0 +1,14 @@
+target
+bin
+*.settings
+*.setting
+*~
+.checkstyle
+*.log
+.metadata
+*.class
+*.swp
+*.jar
+.gradle
+build
+.classpath

@@ -1,0 +1,22 @@
+subprojects {
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+	
+	sourceCompatibility = '1.8'
+	group = 'com.github.twitch.app'
+	version = '1.0.0-SNAPSHOT'
+
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		compile 'junit:junit:4.11'
+		compile 'ch.qos.logback:logback-classic:1.1.2'
+	}
+}
+
+project(':app-core') {
+  dependencies {
+    compile project(':app-common'), project(':app-gui')
+  }
+}
