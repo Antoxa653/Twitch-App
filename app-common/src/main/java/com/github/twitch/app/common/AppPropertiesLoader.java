@@ -1,4 +1,4 @@
-package com.github.twitch.app;
+package com.github.twitch.app.common;
 
 public final class AppPropertiesLoader {
 	private static AppPropertiesLoader instance;

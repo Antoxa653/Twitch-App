@@ -1,4 +1,4 @@
-package com.github.twitch.app;
+package com.github.twitch.app.common;
 
 import java.io.File;
 import java.io.FileInputStream;

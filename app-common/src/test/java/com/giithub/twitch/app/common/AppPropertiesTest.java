@@ -1,4 +1,4 @@
-package com.giithub.twitch.app;
+package com.giithub.twitch.app.common;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -13,8 +13,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.github.twitch.app.AppProperties;
-import com.github.twitch.app.AppPropertiesConstants;
+import com.github.twitch.app.common.AppProperties;
+import com.github.twitch.app.common.AppPropertiesConstants;
 
 public class AppPropertiesTest {
 	private File testPropertiesFile;
