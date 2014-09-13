@@ -38,6 +38,7 @@ public class StreamStoreTest {
 	@After
 	public void clearInvirionment() {
 		StreamStore.removeAll();
+		streamStoreTestFile.deleteOnExit();
 	}
 
 	@Test

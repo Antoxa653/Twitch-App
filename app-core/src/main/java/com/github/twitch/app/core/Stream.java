@@ -1,8 +1,7 @@
 package com.github.twitch.app.core;
 
 import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +12,12 @@ public class Stream implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = LoggerFactory.getLogger(Stream.class);
-	private URL url;
-	private boolean state;
-	private String name;
-	private String status;
-	private String currentGame;
-	private int viewers;
+	private String url = null;
+	private boolean state = false;
+	private String name = null;
+	private String status = null;
+	private String currentGame = null;
+	private long viewers = 0;
 
 	public Stream(String url, boolean state, String name, String status, String currentGame, int viewers) {
 		super();
@@ -27,56 +26,50 @@ public class Stream implements Serializable {
 		this.status = status;
 		this.currentGame = currentGame;
 		this.viewers = viewers;
-		this.url = stringToURL(url);
-
-	}
-
-	public URL getUrl() {
-		return url;
-	}
-
-	public void setUrl(URL url) {
 		this.url = url;
+
+	}
+
+	public void update() {
+		Map<String, Object> updatedStream = StreamJSON.getJSON(this.getUrl());
+
+		if (updatedStream != null) {
+			Map<String, Object> streamInfo = (Map<String, Object>) updatedStream.get("stream");
+			Map<String, Object> channelInfo = (Map<String, Object>) streamInfo.get("channel");
+			this.status = (String) channelInfo.get("status");
+			this.name = (String) channelInfo.get("name");
+			this.currentGame = (String) streamInfo.get("game");
+			this.viewers = (long) streamInfo.get("viewers");
+			if (updatedStream.get("stream") != null) {
+				this.state = true;
+			}
+
+		}
+
+	}
+
+	public String getUrl() {
+		return url;
 	}
 
 	public boolean isState() {
 		return state;
 	}
 
-	public void setState(boolean state) {
-		this.state = state;
-	}
-
 	public String getName() {
 		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
 	}
 
 	public String getStatus() {
 		return status;
 	}
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
-
 	public String getCurrentGame() {
 		return currentGame;
 	}
 
-	public void setCurrentGame(String currentGame) {
-		this.currentGame = currentGame;
-	}
-
-	public int getViewers() {
+	public long getViewers() {
 		return viewers;
-	}
-
-	public void setViewers(int viewers) {
-		this.viewers = viewers;
 	}
 
 	@Override
@@ -94,7 +87,7 @@ public class Stream implements Serializable {
 		result = prime * result + (state ? 1231 : 1237);
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
-		result = prime * result + viewers;
+		result = prime * result + (int) (viewers ^ (viewers >>> 32));
 		return result;
 	}
 
@@ -132,18 +125,6 @@ public class Stream implements Serializable {
 		if (viewers != other.viewers)
 			return false;
 		return true;
-	}
-
-	private URL stringToURL(String urlString) {
-		URL url = null;
-		if (urlString != null) {
-			try {
-				url = new URL(urlString);
-			} catch (MalformedURLException e) {
-				logger.error("Incorrect URL: " + urlString, e);
-			}
-		}
-		return url;
 	}
 
 }

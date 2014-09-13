@@ -96,7 +96,7 @@ public final class StreamStore {
 			throw new IllegalArgumentException("StreamsStore doesn't contain such key as: " + streamName);
 		}
 		else {
-			//TODO
+			//StreamUpdater.update(getStream(streamName).getUrl());
 		}
 	}
 
