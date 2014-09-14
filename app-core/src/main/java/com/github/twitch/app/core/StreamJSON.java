@@ -16,13 +16,13 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class StreamJSON {
+public class StreamJSON {
 	private static Logger logger = LoggerFactory.getLogger(StreamJSON.class);
 
-	private StreamJSON() {
+	public StreamJSON() {
 	}
 
-	public static Map<String, Object> getJSON(String streamUrl) {
+	public static synchronized Map<String, Object> getJSON(String streamUrl) {
 		Map<String, Object> updatedStreamInfo = null;
 		if (streamUrl != null) {
 			String result = null;
@@ -40,10 +40,6 @@ public final class StreamJSON {
 				int responseCode = connection.getResponseCode();
 
 				switch (responseCode) {
-				case 400:
-					throw new ConnectException("Request URL does not exist:" + requestURL);
-				case 404:
-					throw new ConnectException("Twitch server did not respond to a request");
 				case 200:
 					BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream(), "UTF-8"));
 					response = new StringBuffer();
@@ -57,6 +53,10 @@ public final class StreamJSON {
 
 					updatedStreamInfo = toMap(result);
 					break;
+				case 400:
+					throw new ConnectException("Request URL does not exist:" + requestURL);
+				case 404:
+					throw new ConnectException("Twitch server did not respond to a request");
 				default:
 					throw new ConnectException("Unknown response code from Twitch server");
 				}
@@ -79,7 +79,7 @@ public final class StreamJSON {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static Map<String, Object> toMap(String json) throws ParseException {
+	private static synchronized Map<String, Object> toMap(String json) throws ParseException {
 		Map<String, Object> streamInfo = null;
 		if (json != null) {
 			streamInfo = (Map<String, Object>) new JSONParser().parse(json);
@@ -87,7 +87,7 @@ public final class StreamJSON {
 		return streamInfo;
 	}
 
-	private static URL createRequestURL(String streamURL) throws MalformedURLException {
+	private static synchronized URL createRequestURL(String streamURL) throws MalformedURLException {
 		String endpoint = "https://api.twitch.tv/kraken/streams";
 		URL requestUrl = null;
 		URL streamUrl = new URL(streamURL);

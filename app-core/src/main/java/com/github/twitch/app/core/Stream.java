@@ -30,22 +30,25 @@ public class Stream implements Serializable {
 
 	}
 
-	public void update() {
+	public Stream update() {
 		Map<String, Object> updatedStream = StreamJSON.getJSON(this.getUrl());
 
-		if (updatedStream != null) {
+		if (updatedStream.get("stream") != null) {
 			Map<String, Object> streamInfo = (Map<String, Object>) updatedStream.get("stream");
 			Map<String, Object> channelInfo = (Map<String, Object>) streamInfo.get("channel");
 			this.status = (String) channelInfo.get("status");
 			this.name = (String) channelInfo.get("name");
 			this.currentGame = (String) streamInfo.get("game");
 			this.viewers = (long) streamInfo.get("viewers");
-			if (updatedStream.get("stream") != null) {
-				this.state = true;
-			}
-
+			this.state = true;
 		}
-
+		else {
+			this.status = null;
+			this.currentGame = null;
+			this.viewers = 0;
+			this.state = false;
+		}
+		return this;
 	}
 
 	public String getUrl() {
