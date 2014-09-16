@@ -9,8 +9,10 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 import com.github.twitch.app.core.CoreController;
@@ -24,23 +26,31 @@ public class AddNewStreamFrame extends JFrame {
 	private int screenWidth;
 	private int screenHeight;
 	private JButton okButton;
+	public JButton getOkButton() {
+		return okButton;
+	}
+
 	private JButton cancelButton;
 	private final JTextField streamNameTextField;
 	private final JTextField streamUrlTextField;
 	private JLabel nameLabel;
 	private JLabel urlLabel;
 	private JLabel errorLabel;
+	private JFrame mainFrame;
+	
 
-	AddNewStreamFrame() {
+	AddNewStreamFrame(JFrame frame) {
 		super();
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		screenWidth = toolkit.getScreenSize().width / 4;
 		screenHeight = toolkit.getScreenSize().height / 4;
 
+		//
+		this.mainFrame = frame;		
 		this.setTitle("Add new stream");
 		this.setSize(new Dimension(screenWidth, screenHeight));
 		this.setResizable(false);
-		this.setLocationRelativeTo(null);
+		this.setLocationRelativeTo(mainFrame);			
 
 		Container main = this.getContentPane();
 		GroupLayout layout = new GroupLayout(main);
@@ -52,7 +62,7 @@ public class AddNewStreamFrame extends JFrame {
 		urlLabel = new JLabel("Enter URL:");
 		errorLabel = new JLabel();
 		okButton = new JButton("Ok");
-		okButton.addMouseListener(new OkButtonEvent(this));
+		okButton.addMouseListener(new OkButtonEvent(this));		
 		cancelButton = new JButton("Cancel");
 		cancelButton.addMouseListener(new CancelButtonEvent(this));
 		streamNameTextField = new JTextField();
@@ -92,7 +102,7 @@ public class AddNewStreamFrame extends JFrame {
 		}
 
 		@Override
-		public void mouseClicked(MouseEvent e) {
+		public void mousePressed(MouseEvent e) {
 			if (streamNameTextField.getText().isEmpty()) {
 				errorLabel.setText("Please enter the stream name");
 				errorLabel.setForeground(Color.RED);
@@ -122,6 +132,7 @@ public class AddNewStreamFrame extends JFrame {
 				newStream.update();
 				frame.setVisible(false);
 				frame.dispose();
+				
 			}
 		}
 	}

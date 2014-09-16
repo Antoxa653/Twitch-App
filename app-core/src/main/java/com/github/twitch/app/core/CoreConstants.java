@@ -4,7 +4,7 @@ import java.io.File;
 
 public final class CoreConstants {
 	public static final String STREAMS_PATH = System.getProperty("user.home")
-			+ File.separator + "TwitchApplication" + File.separator + "streams";
+			+ File.separator + "TwitchApplication" + File.separator + "streams.tmp";
 	public static final File STREAMS_FILE = new File(STREAMS_PATH);
 
 	public static final String REDIRECT_URI = "http://www.twitch.tv/";

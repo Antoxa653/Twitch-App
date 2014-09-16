@@ -103,6 +103,8 @@ final class StreamStore {
 
 	void setUpStreamsStores(Map<String, Stream> streams) {
 		if (!streams.isEmpty()) {
+			activeStreamsStore = new HashMap<String, Stream>();
+			inactiveStreamsStore = new HashMap<String, Stream>();
 			streamsStore = streams;
 			for (String key : streamsStore.keySet()) {
 				if (streamsStore.get(key).isActive()) {
@@ -116,6 +118,8 @@ final class StreamStore {
 		}
 		else {
 			streamsStore = new HashMap<String, Stream>();
+			activeStreamsStore = new HashMap<String, Stream>();
+			inactiveStreamsStore = new HashMap<String, Stream>();
 		}
 	}
 }

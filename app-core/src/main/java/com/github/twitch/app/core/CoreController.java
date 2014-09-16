@@ -22,6 +22,10 @@ public final class CoreController {
 		}
 	}
 
+	public static void initStreamStore() {
+		StreamStore.init(CoreConstants.STREAMS_FILE);
+	}
+
 	public static Map<String, Stream> getStreamStore(String mode) {
 		Map<String, Stream> customStreamStoreMap;
 		switch (mode) {
@@ -58,7 +62,7 @@ public final class CoreController {
 	}
 
 	public static void startStream(Stream stream, String quality) {
-		StreamStarter.start(stream);
+		StreamStarter.start(stream, quality);
 	}
 
 	public static boolean checkUrl(String url) {

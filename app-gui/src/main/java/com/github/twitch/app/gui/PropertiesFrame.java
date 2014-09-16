@@ -32,22 +32,22 @@ public class PropertiesFrame extends JFrame {
 	private final JTextField lsPathTextField;
 	private JButton applyButton;
 	private JButton closeButton;
+	private JFrame mainFrame;
 
-	public PropertiesFrame() {
+	public PropertiesFrame(JFrame frame) {
+		super();
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 		screenWidth = toolkit.getScreenSize().width / 4;
 		screenHeight = toolkit.getScreenSize().height / 4;
 
+		//
+		this.mainFrame = frame;
 		this.setTitle("Properties");
-		this.setLocationRelativeTo(null);
-		this.setResizable(false);
 		this.setSize(new Dimension(screenWidth, screenHeight));
+		this.setResizable(false);
+		this.setLocationRelativeTo(mainFrame);		
 
-		Container main = this.getContentPane();
-		//GroupLayout layout = new GroupLayout(main);
-		//layout.setAutoCreateContainerGaps(true);
-		//layout.setAutoCreateGaps(true);
-		//main.setLayout(layout);
+		Container main = this.getContentPane();		
 		GridBagLayout layout = new GridBagLayout();
 		main.setLayout(layout);
 
@@ -121,23 +121,7 @@ public class PropertiesFrame extends JFrame {
 		c.gridx = 0;
 		c.gridy = 9;
 		main.add(errorLabel, c);
-
-		/*
-		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER)
-				.addGroup(layout.createSequentialGroup().addComponent(lsPathLabel).addComponent(lsPathTextField))
-				.addGroup(layout.createSequentialGroup().addComponent(applyButton).addComponent(closeButton))
-				.addComponent(errorLabel));
-
-		layout.setVerticalGroup(layout
-				.createSequentialGroup()
-				.addGroup(
-						layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(lsPathLabel)
-								.addComponent(lsPathTextField))
-				.addGroup(
-						layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(applyButton)
-								.addComponent(closeButton)).addComponent(errorLabel));
-
-		 */
+		
 		this.setVisible(true);
 	}
 

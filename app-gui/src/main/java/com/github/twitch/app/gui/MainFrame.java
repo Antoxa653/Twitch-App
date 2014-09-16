@@ -1,6 +1,7 @@
 package com.github.twitch.app.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -10,13 +11,15 @@ import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowStateListener;
-import java.io.FileNotFoundException;
-import java.net.MalformedURLException;
+import java.util.EventListener;
 import java.util.Map;
 
+import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -46,6 +49,7 @@ import com.github.twitch.app.common.AppPropertiesConstants;
 import com.github.twitch.app.common.AppPropertiesLoader;
 import com.github.twitch.app.core.CoreController;
 import com.github.twitch.app.core.Stream;
+import com.github.twitch.app.gui.AddNewStreamFrame.OkButtonEvent;
 import com.github.twitch.app.gui.GuiConstants.StatusType;
 import com.github.twitch.app.gui.GuiConstants.StreamPanelShow;
 import com.github.twitch.app.gui.GuiConstants.StreamPanelSize;
@@ -325,15 +329,15 @@ class MainFrame extends JFrame {
 		switch (streamPanelShow) {
 		case ALL:
 
-			Map<String, Stream> currentAllStreamList = CoreController.getStreamStore(streamPanelShow.toString());
-			for (String s : currentAllStreamList.keySet()) {
+			Map<String, Stream> streamsStoreMap = CoreController.getStreamStore(streamPanelShow.toString());
+			for (String s : streamsStoreMap.keySet()) {
 				c.anchor = GridBagConstraints.NORTH;
 				c.fill = GridBagConstraints.HORIZONTAL;
 				c.weightx = 1;
 				c.weighty = 1;
 				c.gridx = 0;
 				c.gridy = gridy;
-				streamsPanel.add(createStreamPanel(streamPanelSize, currentAllStreamList.get(s)), c);
+				streamsPanel.add(createStreamPanel(streamPanelSize, streamsStoreMap.get(s)), c);
 				gridy++;
 			}
 			break;
@@ -519,14 +523,15 @@ class MainFrame extends JFrame {
 		JButton addButton = new JButton("Add");
 		addButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		addButton.putClientProperty("JButton.segmentPosition", "middle");
+		//
+		final JFrame frame = this;
+		final JPanel panel = topPanel;
 		addButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new AddNewStreamFrame();
-				topPanel.removeAll();
-				topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
-				topPanel.revalidate();
-				topPanel.repaint();
+
+				AddNewStreamFrame s = new AddNewStreamFrame(frame);				
+
 			}
 		});
 
@@ -537,7 +542,7 @@ class MainFrame extends JFrame {
 		prefButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				new PropertiesFrame();
+				new PropertiesFrame(frame);
 			}
 		});
 
@@ -678,6 +683,10 @@ class MainFrame extends JFrame {
 	private int createDeleteOptionPane() {
 		return JOptionPane.showConfirmDialog(this, "Do you whant to delete channel?", "Delete stream",
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+	}
+
+	public void createAddOptionPane() {
+
 	}
 
 	private class StreamUpdater extends SwingWorker<Void, Void> {
