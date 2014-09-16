@@ -33,23 +33,23 @@ public class AppPropertiesTest {
 
 	@Test
 	public void loadPropertiesTest() {
-		AppProperties.loadProperties(testPropertiesFile);
-		Assert.assertEquals("C:\\", AppProperties.getValue(AppPropertiesConstants.LIVESTREAMER_PATH));
-		Assert.assertEquals("ALL", AppProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SHOW));
-		Assert.assertEquals("MEDIUM", AppProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SIZE));
+		AppProperties appProperties = AppProperties.loadProperties(testPropertiesFile);
+		Assert.assertEquals("C:\\", appProperties.getValue(AppPropertiesConstants.LIVESTREAMER_PATH));
+		Assert.assertEquals("ALL", appProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SHOW));
+		Assert.assertEquals("MEDIUM", appProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SIZE));
 	}
 
 	@Test
 	public void savePropertiesTest() {
+		AppProperties appProperties = AppProperties.loadProperties(testPropertiesFile);		
+		appProperties.setValue(AppPropertiesConstants.LIVESTREAMER_PATH, "D:\\");
+		appProperties.setValue(AppPropertiesConstants.STREAM_PANEL_SHOW, "OFFLINE");
+		appProperties.setValue(AppPropertiesConstants.STREAM_PANEL_SIZE, "HIGH");
+		appProperties.saveProperties(testPropertiesFile);
 		AppProperties.loadProperties(testPropertiesFile);
-		AppProperties.setValue(AppPropertiesConstants.LIVESTREAMER_PATH, "D:\\");
-		AppProperties.setValue(AppPropertiesConstants.STREAM_PANEL_SHOW, "OFFLINE");
-		AppProperties.setValue(AppPropertiesConstants.STREAM_PANEL_SIZE, "HIGH");
-		AppProperties.saveProperties(testPropertiesFile);
-		AppProperties.loadProperties(testPropertiesFile);
-		Assert.assertEquals("D:\\", AppProperties.getValue(AppPropertiesConstants.LIVESTREAMER_PATH));
-		Assert.assertEquals("OFFLINE", AppProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SHOW));
-		Assert.assertEquals("HIGH", AppProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SIZE));
+		Assert.assertEquals("D:\\", appProperties.getValue(AppPropertiesConstants.LIVESTREAMER_PATH));
+		Assert.assertEquals("OFFLINE", appProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SHOW));
+		Assert.assertEquals("HIGH", appProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SIZE));
 	}
 
 	private void createTestPropertiesFile() {

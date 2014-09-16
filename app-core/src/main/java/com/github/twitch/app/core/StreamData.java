@@ -16,22 +16,22 @@ import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class StreamJSON {
-	private static Logger logger = LoggerFactory.getLogger(StreamJSON.class);
+final class StreamData {
+	private static Logger logger = LoggerFactory.getLogger(StreamData.class);
 
-	public StreamJSON() {
+	private StreamData() {
 	}
 
-	public static synchronized Map<String, Object> getJSON(String streamUrl) {
+	static synchronized Map<String, Object> getStreamData(String streamUrl) {
 		Map<String, Object> updatedStreamInfo = null;
 		if (streamUrl != null) {
 			String result = null;
-			URL requestURL = null;
+			URL request = null;
 			HttpURLConnection connection = null;
 			StringBuffer response = null;
 			try {
-				requestURL = createRequestURL(streamUrl);
-				connection = (HttpURLConnection) requestURL.openConnection();
+				request = createRequestAddress(streamUrl);
+				connection = (HttpURLConnection) request.openConnection();
 				connection.setRequestMethod("GET");
 				connection.setUseCaches(false);
 				connection.setDoInput(true);
@@ -51,10 +51,10 @@ public class StreamJSON {
 					response.setLength(0);
 					br.close();
 
-					updatedStreamInfo = toMap(result);
+					updatedStreamInfo = responseToMap(result);
 					break;
 				case 400:
-					throw new ConnectException("Request URL does not exist:" + requestURL);
+					throw new ConnectException("Request URL does not exist:" + request);
 				case 404:
 					throw new ConnectException("Twitch server did not respond to a request");
 				default:
@@ -62,7 +62,7 @@ public class StreamJSON {
 				}
 
 			} catch (ProtocolException e) {
-				logger.error("Can't open HttpURLConnection to " + requestURL, e);
+				logger.error("Can't open HttpURLConnection to " + request, e);
 			} catch (UnsupportedEncodingException e) {
 				logger.error("Can't encode input stream from twitch server", e);
 			} catch (MalformedURLException e) {
@@ -79,21 +79,17 @@ public class StreamJSON {
 	}
 
 	@SuppressWarnings("unchecked")
-	private static synchronized Map<String, Object> toMap(String json) throws ParseException {
-		Map<String, Object> streamInfo = null;
-		if (json != null) {
-			streamInfo = (Map<String, Object>) new JSONParser().parse(json);
+	private static synchronized Map<String, Object> responseToMap(String response) throws ParseException {
+		Map<String, Object> streamInfoMap = null;
+		if (response != null) {
+			streamInfoMap = (Map<String, Object>) new JSONParser().parse(response);
 		}
-		return streamInfo;
+		return streamInfoMap;
 	}
 
-	private static synchronized URL createRequestURL(String streamURL) throws MalformedURLException {
+	private static synchronized URL createRequestAddress(String url) throws MalformedURLException {
 		String endpoint = "https://api.twitch.tv/kraken/streams";
-		URL requestUrl = null;
-		URL streamUrl = new URL(streamURL);
-		String temp = streamUrl.getFile();
-		requestUrl = new URL(endpoint + temp);
-		return requestUrl;
+		return new URL(endpoint + new URL(url).getFile());
 	}
 
 }

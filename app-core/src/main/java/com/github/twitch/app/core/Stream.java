@@ -13,40 +13,38 @@ public class Stream implements Serializable {
 	private static final long serialVersionUID = 1L;
 	private static Logger logger = LoggerFactory.getLogger(Stream.class);
 	private String url = null;
-	private boolean state = false;
+	private boolean activity = false;
 	private String name = null;
 	private String status = null;
 	private String currentGame = null;
 	private long viewers = 0;
 
-	public Stream(String url, boolean state, String name, String status, String currentGame, int viewers) {
+	public Stream(String url, boolean activity, String name, String status, String currentGame, int viewers) {
 		super();
 		this.name = name;
-		this.state = state;
+		this.activity = activity;
 		this.status = status;
 		this.currentGame = currentGame;
 		this.viewers = viewers;
 		this.url = url;
-
 	}
 
 	public Stream update() {
-		Map<String, Object> updatedStream = StreamJSON.getJSON(this.getUrl());
+		Map<String, Object> updatedStream = StreamData.getStreamData(this.getUrl());
 
 		if (updatedStream.get("stream") != null) {
 			Map<String, Object> streamInfo = (Map<String, Object>) updatedStream.get("stream");
 			Map<String, Object> channelInfo = (Map<String, Object>) streamInfo.get("channel");
-			this.status = (String) channelInfo.get("status");
-			this.name = (String) channelInfo.get("name");
+			this.status = (String) channelInfo.get("status");			
 			this.currentGame = (String) streamInfo.get("game");
 			this.viewers = (long) streamInfo.get("viewers");
-			this.state = true;
+			this.activity = true;
 		}
 		else {
 			this.status = null;
 			this.currentGame = null;
 			this.viewers = 0;
-			this.state = false;
+			this.activity = false;
 		}
 		return this;
 	}
@@ -55,8 +53,8 @@ public class Stream implements Serializable {
 		return url;
 	}
 
-	public boolean isState() {
-		return state;
+	public boolean isActive() {
+		return activity;
 	}
 
 	public String getName() {
@@ -77,7 +75,7 @@ public class Stream implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Stream [url=" + url + ", state=" + state + ", name=" + name + ", status=" + status + ", currentGame="
+		return "Stream [url=" + url + ", state=" + activity + ", name=" + name + ", status=" + status + ", currentGame="
 				+ currentGame + ", viewers=" + viewers + "]";
 	}
 
@@ -87,7 +85,7 @@ public class Stream implements Serializable {
 		int result = 1;
 		result = prime * result + ((currentGame == null) ? 0 : currentGame.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
-		result = prime * result + (state ? 1231 : 1237);
+		result = prime * result + (activity ? 1231 : 1237);
 		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
 		result = prime * result + (int) (viewers ^ (viewers >>> 32));
@@ -113,7 +111,7 @@ public class Stream implements Serializable {
 				return false;
 		} else if (!name.equals(other.name))
 			return false;
-		if (state != other.state)
+		if (activity != other.activity)
 			return false;
 		if (status == null) {
 			if (other.status != null)

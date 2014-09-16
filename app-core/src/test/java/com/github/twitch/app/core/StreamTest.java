@@ -13,7 +13,7 @@ import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
 
 @RunWith(PowerMockRunner.class)
-@PrepareForTest(StreamJSON.class)
+@PrepareForTest(StreamData.class)
 public class StreamTest {
 
 	private Map<String, Object> updatedActiveStreamMap;
@@ -48,22 +48,22 @@ public class StreamTest {
 
 	@Test
 	public void updateActiveStreamTest() {
-		PowerMockito.mockStatic(StreamJSON.class);
-		Mockito.when(StreamJSON.getJSON(oldStream.getUrl())).thenReturn(updatedActiveStreamMap);
+		PowerMockito.mockStatic(StreamData.class);
+		Mockito.when(StreamData.getStreamData(oldStream.getUrl())).thenReturn(updatedActiveStreamMap);
 		Stream actual = oldStream.update();
 		PowerMockito.verifyStatic();
-		StreamJSON.getJSON(oldStream.getUrl());
+		StreamData.getStreamData(oldStream.getUrl());
 		Assert.assertEquals(updatedActiveStream, actual);
 
 	}
 
 	@Test
 	public void updateUnactiveStreamTest() {
-		PowerMockito.mockStatic(StreamJSON.class);
-		Mockito.when(StreamJSON.getJSON(oldStream.getUrl())).thenReturn(updatedUnactiveStreamMap);
+		PowerMockito.mockStatic(StreamData.class);
+		Mockito.when(StreamData.getStreamData(oldStream.getUrl())).thenReturn(updatedUnactiveStreamMap);
 		Stream actual = oldStream.update();
 		PowerMockito.verifyStatic();
-		StreamJSON.getJSON(oldStream.getUrl());
+		StreamData.getStreamData(oldStream.getUrl());
 		Assert.assertEquals(updatedUnactiveStream, actual);
 	}
 

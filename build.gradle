@@ -22,7 +22,15 @@ subprojects {
 }
 
 project(':app-core') {
-  dependencies {
-    compile project(':app-common'), project(':app-gui')
-  }
+	dependencies {
+		compile project(':app-common')
+	}  
 }
+project(':app-gui') {
+	dependencies {
+		compile project(':app-core')
+	}
+}
+
+
+

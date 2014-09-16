@@ -35,7 +35,7 @@ public final class AppProperties {
 		return new AppProperties(properties);
 	}
 
-	public static void saveProperties(File propertiesFile) {
+	public void saveProperties(File propertiesFile) {
 		if (propertiesFile != null && !propertiesFile.exists()) {
 			propertiesFile.getParentFile().mkdirs();
 		}
@@ -46,7 +46,7 @@ public final class AppProperties {
 		}
 	}
 
-	public static String getValue(String key) {
+	public String getValue(String key) {
 		if (key == null) {
 			throw new IllegalArgumentException("key must be not null");
 		}
@@ -56,7 +56,7 @@ public final class AppProperties {
 		return appProperties.getProperty(key);
 	}
 
-	public static void setValue(String key, String value) {
+	public void setValue(String key, String value) {
 		if (key == null) {
 			throw new IllegalArgumentException("key must be not null");
 		}
@@ -67,9 +67,13 @@ public final class AppProperties {
 
 	}
 
-	public static void setValueAndSaveProperties(File propertiesFile, String key, String value) {
+	public void setValueAndSaveProperties(File propertiesFile, String key, String value) {
 		setValue(key, value);
 		saveProperties(propertiesFile);
+	}
+
+	public boolean checkLivestreamerPath(String path) {
+		return new File(path).isFile();
 	}
 
 	private final Properties loadDefaultProperties() {
