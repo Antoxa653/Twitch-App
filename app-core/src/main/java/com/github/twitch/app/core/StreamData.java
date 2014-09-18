@@ -30,6 +30,7 @@ final class StreamData {
 			HttpURLConnection connection = null;
 			StringBuffer response = null;
 			try {
+				logger.debug("--- Gathering steam data from TwitchAPI started ---");
 				request = createRequestAddress(streamUrl);
 				connection = (HttpURLConnection) request.openConnection();
 				connection.setRequestMethod("GET");
@@ -52,6 +53,7 @@ final class StreamData {
 					br.close();
 
 					updatedStreamInfo = responseToMap(result);
+					logger.debug("--- Gathering steam data from TwitchAPI finished correctly ---");
 					break;
 				case 400:
 					throw new ConnectException("Request URL does not exist:" + request);

@@ -14,22 +14,27 @@ public final class AppProperties {
 	private static Properties appProperties;
 
 	private AppProperties(Properties properties) {
-		if (properties.isEmpty() && !propertiesFileExist(AppPropertiesConstants.PROPERTIES_FILE)) {
+		if (properties.isEmpty() && !AppPropertiesConstants.PROPERTIES_FILE.exists()) {
+			logger.debug("--- Initialize AppProperties object with default application properties ---");
 			appProperties = loadDefaultProperties();
 			saveProperties(AppPropertiesConstants.PROPERTIES_FILE);
 		}
 		else {
+			logger.debug("--- Initialize AppProperties object with properties have been read from file ---");
 			appProperties = properties;
 		}
 	}
 
-	public static AppProperties loadProperties(File propertiesFile) {
+	public static AppProperties initProperties(File propertiesFile) {
+		logger.debug("--- Initialize application settings ---");
 		Properties properties = new Properties();
 		if (propertiesFile != null && propertiesFile.exists() && propertiesFile.isFile()) {
+			logger.debug("--- Reading application settings from file ---");
 			try (FileInputStream propertiesStream = new FileInputStream(propertiesFile)) {
 				properties.load(propertiesStream);
+				logger.debug("--- Settings have been read from file ---");
 			} catch (IOException e) {
-				logger.error("Error while reading properties file", propertiesFile.toString(), e);
+				logger.error("Error while reading application settings from file :" + propertiesFile.toString(), e);
 			}
 		}
 		return new AppProperties(properties);
@@ -40,7 +45,8 @@ public final class AppProperties {
 			propertiesFile.getParentFile().mkdirs();
 		}
 		try (FileOutputStream propertiesStream = new FileOutputStream(propertiesFile)) {
-			appProperties.store(propertiesStream, "TwitchApp properties file");
+			logger.debug("--- Saving AppProperties object to file ---");
+			appProperties.store(propertiesStream, "TSV properties file");
 		} catch (IOException e) {
 			logger.error("Error while writing properties file", propertiesFile.toString(), e);
 		}
@@ -48,7 +54,7 @@ public final class AppProperties {
 
 	public String getValue(String key) {
 		if (key == null) {
-			throw new IllegalArgumentException("key must be not null");
+			throw new IllegalArgumentException("Key must be not null");
 		}
 		if (!appProperties.containsKey(key)) {
 			throw new IllegalArgumentException("properties doesn't contains key such this: " + key);
@@ -58,11 +64,12 @@ public final class AppProperties {
 
 	public void setValue(String key, String value) {
 		if (key == null) {
-			throw new IllegalArgumentException("key must be not null");
+			throw new IllegalArgumentException("Key must not be null");
 		}
 		if (!appProperties.containsKey(key)) {
-			throw new IllegalArgumentException("properties doesn't contains key such this: " + key);
+			throw new IllegalArgumentException("Properties doesn't contains key such this: " + key);
 		}
+		logger.debug("--- Setting propertie " + key + " with value = " + value);
 		appProperties.put(key, value);
 
 	}
@@ -73,19 +80,22 @@ public final class AppProperties {
 	}
 
 	public boolean checkLivestreamerPath(String path) {
-		return new File(path).isFile();
+		File propertiesFile = new File(path + File.separator + "livestreamer.exe");
+		if (!propertiesFile.isFile() || !propertiesFile.canExecute()) {
+			logger.error("Invalid livestreamer path");
+			return false;
+		}
+		logger.debug("--- Current livestreamer path is correct ---");
+		return true;
+
 	}
 
 	private final Properties loadDefaultProperties() {
+		logger.debug("--- Initializing default application properties ---");
 		Properties properties = new Properties();
-		properties.put(AppPropertiesConstants.LIVESTREAMER_PATH, "C:\\");
+		properties.put(AppPropertiesConstants.LIVESTREAMER_PATH, "C:\\Program Files (x86)\\livestreamer");
 		properties.put(AppPropertiesConstants.STREAM_PANEL_SHOW, "ALL");
-		properties.put(AppPropertiesConstants.STREAM_PANEL_SIZE, "MEDIUM");
+		properties.put(AppPropertiesConstants.STREAM_PANEL_SIZE, "SMALL");
 		return properties;
 	}
-
-	private final boolean propertiesFileExist(File file) {
-		return file.exists();
-	}
-
 }

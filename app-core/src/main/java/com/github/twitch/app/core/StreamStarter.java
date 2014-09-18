@@ -16,24 +16,24 @@ final class StreamStarter {
 	private static Logger logger = LoggerFactory.getLogger(StreamStarter.class);
 
 	private StreamStarter() {
-
 	}
 
-	static void start(Stream stream, String quality) {
+	static void start(String key, Stream stream, String quality) {
+		logger.debug("--- Starting " + key + " stream ---");
 		File streamFile = createStreamFile(stream, quality);
 		try {
 			Runtime.getRuntime().exec(
 					"cmd /c start " + streamFile.toString());
+			logger.debug("--- Stream " + key + "was started ---");
 		} catch (IOException e) {
 			logger.error("Error while opening stream file:" + streamFile, e);
 		}
 	}
 
 	private static File createStreamFile(Stream stream, String quality) {
-		String streamFilePath = new File(AppPropertiesConstants.PROPERTIES_FILE_PATH).getParentFile().toString();
-		File streamFile = new File(streamFilePath + File.separator + stream.getName() + ".bat");
 		StringBuilder sb = new StringBuilder();
-		try (PrintWriter pw = new PrintWriter(new FileOutputStream(streamFile))) {
+		try (PrintWriter pw = new PrintWriter(new FileOutputStream(CoreConstants.LIVESTREAMER_BAT_FILE))) {
+			logger.debug("--- Creating stream file ---");
 			sb.append("@echo ");
 			sb.append(System.getProperty("line.separator"));
 			sb.append("cd /D");
@@ -49,10 +49,12 @@ final class StreamStarter {
 			sb.append("@echo off");
 			pw.println(sb.toString());
 			sb.setLength(0);
+			logger.debug("--- Creatiion of stream file finished ---");
 		} catch (FileNotFoundException e) {
-			logger.error("Stream file was not found in: " + streamFile, e);
+			logger.error(CoreConstants.LIVESTREAMER_BAT_FILE.getName() + " file was not found in: "
+					+ CoreConstants.LIVESTREAMER_BAT_PATH, e);
 		}
-		return streamFile;
+		return CoreConstants.LIVESTREAMER_BAT_FILE;
 	}
 
 }

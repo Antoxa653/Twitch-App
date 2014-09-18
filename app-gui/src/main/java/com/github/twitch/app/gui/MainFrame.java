@@ -1,7 +1,7 @@
 package com.github.twitch.app.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -13,13 +13,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.util.EventListener;
 import java.util.Map;
 
-import javax.swing.Action;
 import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.GroupLayout;
@@ -37,31 +34,26 @@ import javax.swing.JProgressBar;
 import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
+import javax.swing.JTextField;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
 import javax.swing.SwingWorker;
 import javax.swing.Timer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.github.twitch.app.common.AppPropertiesConstants;
 import com.github.twitch.app.common.AppPropertiesLoader;
 import com.github.twitch.app.core.CoreController;
 import com.github.twitch.app.core.Stream;
-import com.github.twitch.app.gui.AddNewStreamFrame.OkButtonEvent;
 import com.github.twitch.app.gui.GuiConstants.StatusType;
 import com.github.twitch.app.gui.GuiConstants.StreamPanelShow;
 import com.github.twitch.app.gui.GuiConstants.StreamPanelSize;
 
-class MainFrame extends JFrame {
+public class MainFrame extends JFrame {
 
 	/**
 	 * 
 	 */
-	private static final long serialVersionUID = 1L;
-
-	private static Logger log = LoggerFactory.getLogger(MainFrame.class);
+	private static final long serialVersionUID = 1L;	
 
 	private StreamPanelSize currentSize;
 	private StreamPanelShow currentShow;
@@ -70,7 +62,6 @@ class MainFrame extends JFrame {
 	private int defaulFrametWidth;
 	private int defaultFrameHeight;
 
-	//private JFrame frame;
 	private JMenuBar menuBar;
 	private JPanel topPanel;
 	private JPanel bottomPanel;
@@ -94,7 +85,6 @@ class MainFrame extends JFrame {
 		defaulFrametWidth = screenWidth / 2;
 		defaultFrameHeight = screenHeight / 2;
 
-		//frame = new JFrame();
 		this.setTitle("TSV");
 		this.setSize(new Dimension(defaulFrametWidth, defaultFrameHeight));
 		this.setMinimumSize(new Dimension(defaulFrametWidth, defaultFrameHeight));
@@ -109,14 +99,12 @@ class MainFrame extends JFrame {
 		layout.setAutoCreateGaps(true);
 		main.setLayout(layout);
 
-		topPanel = createTopPanel();
-		bottomPanel = createBottomPanel();
+		topPanel = createStreamsPanel();
+		bottomPanel = createButtonsPanel();
 		statusPanel = createStatusPanel();
-
 		statusProgressBar = createProgressBar();
 
-		topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
-		bottomPanel.add(BorderLayout.CENTER, createButtonsPanel());
+		bottomPanel.add(BorderLayout.CENTER, addButtonsPanel());
 
 		layout.setHorizontalGroup(layout.createParallelGroup(GroupLayout.Alignment.CENTER).addComponent(topPanel)
 				.addComponent(bottomPanel).addComponent(statusPanel));
@@ -131,6 +119,9 @@ class MainFrame extends JFrame {
 
 		deleteAction = new DeleteButtonAction();
 		startAction = new StartButtonAction();
+
+		StreamsPanelUpdater update = new StreamsPanelUpdater();
+		update.execute();
 	}
 
 	private JMenuBar createMenuBar() {
@@ -167,7 +158,7 @@ class MainFrame extends JFrame {
 				AppPropertiesLoader.getInstance().getAppProperties()
 						.setValue(AppPropertiesConstants.STREAM_PANEL_SHOW, StreamPanelShow.ALL.toString());
 				topPanel.removeAll();
-				topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
+				topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
 				topPanel.revalidate();
 				topPanel.repaint();
 			}
@@ -180,7 +171,7 @@ class MainFrame extends JFrame {
 				AppPropertiesLoader.getInstance().getAppProperties()
 						.setValue(AppPropertiesConstants.STREAM_PANEL_SHOW, StreamPanelShow.ACTIVE.toString());
 				topPanel.removeAll();
-				topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
+				topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
 				topPanel.revalidate();
 				topPanel.repaint();
 			}
@@ -189,11 +180,11 @@ class MainFrame extends JFrame {
 		showOfflineMenuItem.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				currentShow = StreamPanelShow.UNACTIVE;
+				currentShow = StreamPanelShow.INACTIVE;
 				AppPropertiesLoader.getInstance().getAppProperties()
-						.setValue(AppPropertiesConstants.STREAM_PANEL_SHOW, StreamPanelShow.UNACTIVE.toString());
+						.setValue(AppPropertiesConstants.STREAM_PANEL_SHOW, StreamPanelShow.INACTIVE.toString());
 				topPanel.removeAll();
-				topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
+				topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
 				topPanel.revalidate();
 				topPanel.repaint();
 			}
@@ -215,7 +206,7 @@ class MainFrame extends JFrame {
 		case ACTIVE:
 			showOnlineMenuItem.setSelected(true);
 			break;
-		case UNACTIVE:
+		case INACTIVE:
 			showOfflineMenuItem.setSelected(true);
 			break;
 		default:
@@ -235,7 +226,7 @@ class MainFrame extends JFrame {
 				AppPropertiesLoader.getInstance().getAppProperties()
 						.setValue(AppPropertiesConstants.STREAM_PANEL_SIZE, StreamPanelSize.SMALL.toString());
 				topPanel.removeAll();
-				topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
+				topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
 				topPanel.revalidate();
 				topPanel.repaint();
 			}
@@ -248,7 +239,7 @@ class MainFrame extends JFrame {
 				AppPropertiesLoader.getInstance().getAppProperties()
 						.setValue(AppPropertiesConstants.STREAM_PANEL_SIZE, StreamPanelSize.MEDIUM.toString());
 				topPanel.removeAll();
-				topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
+				topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
 				topPanel.revalidate();
 				topPanel.repaint();
 			}
@@ -261,7 +252,7 @@ class MainFrame extends JFrame {
 				AppPropertiesLoader.getInstance().getAppProperties()
 						.setValue(AppPropertiesConstants.STREAM_PANEL_SIZE, StreamPanelSize.LARGE.toString());
 				topPanel.removeAll();
-				topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
+				topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
 				topPanel.revalidate();
 				topPanel.repaint();
 			}
@@ -297,14 +288,14 @@ class MainFrame extends JFrame {
 		return menuBar;
 	}
 
-	private JPanel createTopPanel() {
+	private JPanel createStreamsPanel() {
 		JPanel topPanel = new JPanel();
 		topPanel.setPreferredSize(new Dimension(this.getWidth(), 88 * this.getHeight() / 100));
 		topPanel.setLayout(new BorderLayout());
 		return topPanel;
 	}
 
-	private JPanel createBottomPanel() {
+	private JPanel createButtonsPanel() {
 		JPanel bottomPanel = new JPanel();
 		bottomPanel.setPreferredSize(new Dimension(this.getWidth(), 7 * this.getHeight() / 100));
 		bottomPanel.setLayout(new BorderLayout());
@@ -318,7 +309,7 @@ class MainFrame extends JFrame {
 		return statusPanel;
 	}
 
-	private JScrollPane createStreamsPanel(StreamPanelSize streamPanelSize, StreamPanelShow streamPanelShow) {
+	private JScrollPane addStreamsPanel(StreamPanelSize streamPanelSize, StreamPanelShow streamPanelShow) {
 		JPanel streamsPanel = new JPanel();
 
 		GridBagLayout layout = new GridBagLayout();
@@ -330,47 +321,57 @@ class MainFrame extends JFrame {
 		case ALL:
 
 			Map<String, Stream> streamsStoreMap = CoreController.getStreamStore(streamPanelShow.toString());
-			for (String s : streamsStoreMap.keySet()) {
+			for (String stream : streamsStoreMap.keySet()) {
 				c.anchor = GridBagConstraints.NORTH;
 				c.fill = GridBagConstraints.HORIZONTAL;
 				c.weightx = 1;
 				c.weighty = 1;
 				c.gridx = 0;
 				c.gridy = gridy;
-				streamsPanel.add(createStreamPanel(streamPanelSize, streamsStoreMap.get(s)), c);
+				streamsPanel.add(addStreamPanel(streamPanelSize, stream, streamsStoreMap.get(stream)), c);
 				gridy++;
 			}
 			break;
 		case ACTIVE:
 
 			Map<String, Stream> currentActiveStreamList = CoreController.getStreamStore(streamPanelShow.toString());
-			for (String s : currentActiveStreamList.keySet()) {
+			for (String stream : currentActiveStreamList.keySet()) {
 				c.anchor = GridBagConstraints.NORTH;
 				c.fill = GridBagConstraints.HORIZONTAL;
 				c.weightx = 1;
 				c.weighty = 1;
 				c.gridx = 0;
 				c.gridy = gridy;
-				streamsPanel.add(createStreamPanel(streamPanelSize, currentActiveStreamList.get(s)), c);
+				streamsPanel.add(addStreamPanel(streamPanelSize, stream, currentActiveStreamList.get(stream)), c);
 				gridy++;
 			}
 			break;
-		case UNACTIVE:
+		case INACTIVE:
 
 			Map<String, Stream> currentUnactiveStreamList = CoreController.getStreamStore(streamPanelShow.toString());
-			for (String s : currentUnactiveStreamList.keySet()) {
+			for (String stream : currentUnactiveStreamList.keySet()) {
 				c.anchor = GridBagConstraints.NORTH;
 				c.fill = GridBagConstraints.HORIZONTAL;
 				c.weightx = 1;
 				c.weighty = 1;
 				c.gridx = 0;
 				c.gridy = gridy;
-				streamsPanel.add(createStreamPanel(streamPanelSize, currentUnactiveStreamList.get(s)), c);
+				streamsPanel.add(addStreamPanel(streamPanelSize, stream, currentUnactiveStreamList.get(stream)), c);
 				gridy++;
 			}
 			break;
 		default:
-			break;
+			Map<String, Stream> defaultStoreMap = CoreController.getStreamStore(streamPanelShow.toString());
+			for (String stream : defaultStoreMap.keySet()) {
+				c.anchor = GridBagConstraints.NORTH;
+				c.fill = GridBagConstraints.HORIZONTAL;
+				c.weightx = 1;
+				c.weighty = 1;
+				c.gridx = 0;
+				c.gridy = gridy;
+				streamsPanel.add(addStreamPanel(streamPanelSize, stream, defaultStoreMap.get(stream)), c);
+				gridy++;
+			}
 		}
 		// This block prevent stretching of streamsPanel, DONT DELETE!!!!!!!
 		JLabel prevemtStrechingLabel = new JLabel();
@@ -392,18 +393,18 @@ class MainFrame extends JFrame {
 		return streamsScrollPane;
 	}
 
-	private JPanel createStreamPanel(StreamPanelSize streamPanelSize, final Stream stream) {
+	private JPanel addStreamPanel(StreamPanelSize streamPanelSize, String streamName, final Stream stream) {
 		JPanel streamPanel = new JPanel();
 
 		GridBagLayout layout = new GridBagLayout();
 		streamPanel.setLayout(layout);
 
-		String[] items = { "mobile", "low", "medium", "high", "source" };
+		String[] items = { "mobile", "low", "medium", "high", "source", "audio" };
 		final JComboBox<String> qualityBox = new JComboBox<String>(items);
 		qualityBox.setPreferredSize(new Dimension(90, streamPanelSize.size));
 		qualityBox.setSelectedIndex(4);
 
-		final JLabel nameLabel = new JLabel(stream.getName());
+		final JLabel nameLabel = new JLabel(streamName);
 		nameLabel.setPreferredSize(new Dimension(100, streamPanelSize.size));
 
 		JLabel statusLabel = new JLabel(stream.getStatus());
@@ -423,11 +424,11 @@ class MainFrame extends JFrame {
 
 		JButton startButton = createCustomStartButton(streamPanelSize, stream.isActive());
 		if (stream.isActive()) {
-			startButton.addActionListener(startAction);
-		}
+			startButton.addMouseListener(startAction);
+		}			
 
 		JButton deleteButton = createCustomDeleteButton(streamPanelSize);
-		deleteButton.addActionListener(deleteAction);
+		deleteButton.addMouseListener(deleteAction);
 
 		GridBagConstraints c = new GridBagConstraints();
 		c.anchor = GridBagConstraints.WEST;
@@ -478,7 +479,7 @@ class MainFrame extends JFrame {
 
 	}
 
-	private JPanel createButtonsPanel() {
+	private JPanel addButtonsPanel() {
 		JPanel buttonsPanel = new JPanel();
 
 		GridBagLayout layout = new GridBagLayout();
@@ -487,23 +488,12 @@ class MainFrame extends JFrame {
 		JButton updateButton = new JButton("Update");
 		updateButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		updateButton.putClientProperty("JButton.segmentPosition", "first");
-		updateButton.addActionListener(new ActionListener() {
+		updateButton.addMouseListener(new MouseAdapter() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
-				JPanel buttonsPanel = (JPanel) bottomPanel.getComponent(0);
-				buttonsPanel.getComponent(0).setEnabled(false);
-				buttonsPanel.getComponent(1).setEnabled(false);
-				buttonsPanel.getComponent(2).setEnabled(false);
-				buttonsPanel.getComponent(3).setEnabled(false);
-
-				statusPanel.removeAll();
-				statusPanel.add(BorderLayout.CENTER, statusProgressBar);
-				statusPanel.revalidate();
-				statusPanel.repaint();
-
-				StreamUpdater streamUpdater = new StreamUpdater();
-				streamUpdater.execute();
+			public void mouseClicked(MouseEvent e) {
+				StreamsPanelUpdater allStreamUpdater = new StreamsPanelUpdater();
+				allStreamUpdater.execute();
 
 			}
 		});
@@ -511,10 +501,10 @@ class MainFrame extends JFrame {
 		JButton saveButton = new JButton("Save");
 		saveButton.putClientProperty("JButton.buttonType", "segmentedTextured");
 		saveButton.putClientProperty("JButton.segmentPosition", "middle");
-		saveButton.addActionListener(new ActionListener() {
+		saveButton.addMouseListener(new MouseAdapter() {
 
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void mouseClicked(MouseEvent e) {
 				StreamSaver streamSaver = new StreamSaver();
 				streamSaver.execute();
 			}
@@ -525,23 +515,22 @@ class MainFrame extends JFrame {
 		addButton.putClientProperty("JButton.segmentPosition", "middle");
 		//
 		final JFrame frame = this;
-		final JPanel panel = topPanel;
-		addButton.addActionListener(new ActionListener() {
+		addButton.addMouseListener(new MouseAdapter() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void mouseClicked(MouseEvent e) {
 
-				AddNewStreamFrame s = new AddNewStreamFrame(frame);				
+				new AddNewStreamFrame(frame);
 
 			}
 		});
 
-		JButton prefButton = new JButton("Preferences");
-		prefButton.putClientProperty("JButton.buttonType", "segmentedTextured");
-		prefButton.putClientProperty("JButton.segmentPosition", "last");
+		JButton propertiesButton = new JButton("Preferences");
+		propertiesButton.putClientProperty("JButton.buttonType", "segmentedTextured");
+		propertiesButton.putClientProperty("JButton.segmentPosition", "last");
 
-		prefButton.addActionListener(new ActionListener() {
+		propertiesButton.addMouseListener(new MouseAdapter() {
 			@Override
-			public void actionPerformed(ActionEvent e) {
+			public void mouseClicked(MouseEvent e) {
 				new PropertiesFrame(frame);
 			}
 		});
@@ -570,7 +559,7 @@ class MainFrame extends JFrame {
 		c.weighty = 1;
 		c.gridx = 3;
 		c.gridy = 0;
-		buttonsPanel.add(prefButton, c);
+		buttonsPanel.add(propertiesButton, c);
 
 		return buttonsPanel;
 	}
@@ -582,7 +571,7 @@ class MainFrame extends JFrame {
 
 		JLabel infoLabel = new JLabel();
 		infoLabel.setFont(new Font("Verdana", Font.CENTER_BASELINE, 10));
-		infoLabel.setText(StatusType.WAIT.getStatus());
+		infoLabel.setText(StatusType.WAIT.message);
 		infoLabel.setHorizontalAlignment(JLabel.CENTER);
 		infoLabel.setVerticalAlignment(JLabel.CENTER);
 
@@ -597,7 +586,7 @@ class MainFrame extends JFrame {
 
 		statusPanel.removeAll();
 		statusPanel.add(BorderLayout.CENTER, statusLabel);
-		statusLabel.setText(statusType.getStatus());
+		statusLabel.setText(statusType.message);
 		statusPanel.revalidate();
 		statusPanel.repaint();
 	}
@@ -627,6 +616,9 @@ class MainFrame extends JFrame {
 						.getResource(GuiConstants.START_ACTIVE_66_ICON)));
 				break;
 			default:
+				startButton.setIcon(new ImageIcon(this.getClass().getResource(GuiConstants.START_ACTIVE_16_ICON)));
+				startButton.setRolloverIcon(new ImageIcon(this.getClass()
+						.getResource(GuiConstants.START_ACTIVE_18_ICON)));
 				break;
 			}
 		} else {
@@ -647,6 +639,9 @@ class MainFrame extends JFrame {
 						GuiConstants.START_UNACTIVE_66_ICON)));
 				break;
 			default:
+				startButton.setIcon(new ImageIcon(this.getClass().getResource(GuiConstants.START_UNACTIVE_16_ICON)));
+				startButton.setRolloverIcon(new ImageIcon(this.getClass().getResource(
+						GuiConstants.START_UNACTIVE_18_ICON)));
 				break;
 			}
 		}
@@ -685,15 +680,310 @@ class MainFrame extends JFrame {
 				JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
 	}
 
-	public void createAddOptionPane() {
+	private class AddNewStreamFrame extends JFrame {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private int screenWidth;
+		private int screenHeight;
+		private JButton okButton;
 
+		private JButton cancelButton;
+		private final JTextField streamNameTextField;
+		private final JTextField streamUrlTextField;
+		private JLabel nameLabel;
+		private JLabel urlLabel;
+		private JLabel errorLabel;
+		private JFrame mainFrame;
+
+		AddNewStreamFrame(JFrame frame) {
+			super();
+			Toolkit toolkit = Toolkit.getDefaultToolkit();
+			screenWidth = toolkit.getScreenSize().width / 4;
+			screenHeight = toolkit.getScreenSize().height / 4;
+
+			//
+			this.mainFrame = frame;
+
+			this.setTitle("Add new stream");
+			this.setSize(new Dimension(screenWidth, screenHeight));
+			this.setResizable(false);
+			this.setLocationRelativeTo(mainFrame);
+
+			Container main = this.getContentPane();
+			GroupLayout layout = new GroupLayout(main);
+			layout.setAutoCreateGaps(true);
+			layout.setAutoCreateContainerGaps(true);
+			main.setLayout(layout);
+
+			nameLabel = new JLabel("Enter name:");
+			urlLabel = new JLabel("Enter URL:");
+			errorLabel = new JLabel();
+			okButton = new JButton("Ok");
+			okButton.addMouseListener(new OkButtonEvent(this));
+			cancelButton = new JButton("Cancel");
+			cancelButton.addMouseListener(new CancelButtonEvent(this));
+			streamNameTextField = new JTextField();
+			streamNameTextField.setMaximumSize(new Dimension(screenWidth - 25, 25));
+			streamUrlTextField = new JTextField();
+			streamUrlTextField.setMaximumSize(new Dimension(screenWidth - 25, 25));
+
+			layout.setHorizontalGroup(layout
+					.createParallelGroup(GroupLayout.Alignment.CENTER)
+					.addComponent(nameLabel)
+					.addComponent(streamNameTextField)
+					.addComponent(urlLabel)
+					.addComponent(streamUrlTextField)
+					.addGroup(
+							layout.createSequentialGroup().addComponent(okButton)
+									.addComponent(cancelButton))
+					.addComponent(errorLabel));
+
+			layout.setVerticalGroup(layout
+					.createSequentialGroup().addComponent(nameLabel)
+					.addComponent(streamNameTextField)
+					.addComponent(urlLabel)
+					.addComponent(streamUrlTextField)
+					.addGroup(
+							layout.createParallelGroup(GroupLayout.Alignment.BASELINE).addComponent(okButton)
+									.addComponent(cancelButton))
+					.addComponent(errorLabel));
+			this.setVisible(true);
+
+		}
+
+		class OkButtonEvent extends MouseAdapter {
+			private JFrame frame;
+
+			OkButtonEvent(JFrame frame) {
+				this.frame = frame;
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (streamNameTextField.getText().isEmpty()) {
+					errorLabel.setText("Please enter the stream name");
+					errorLabel.setForeground(Color.RED);
+					frame.repaint();
+					frame.revalidate();
+					return;
+				}
+				if (streamUrlTextField.getText().isEmpty()) {
+					errorLabel.setText("Please enter the stream URL");
+					errorLabel.setForeground(Color.RED);
+					frame.repaint();
+					frame.revalidate();
+					return;
+				}
+				if (!CoreController.checkUrl(streamUrlTextField.getText())) {
+					errorLabel.setText("Invalid URL");
+					errorLabel.setForeground(Color.RED);
+					frame.repaint();
+					frame.revalidate();
+					return;
+				}
+
+				else {
+					Stream newStream = new Stream(streamUrlTextField.getText(), false,
+							null, null, null, 0);
+					SingleStreamUpdater updater = new SingleStreamUpdater(newStream);
+					updater.execute();
+					CoreController.addStream(streamNameTextField.getText(), newStream);
+					frame.setVisible(false);
+					frame.dispose();
+				}
+			}
+		}
+
+		class CancelButtonEvent extends MouseAdapter {
+			private JFrame frame;
+
+			CancelButtonEvent(JFrame frame) {
+				this.frame = frame;
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				frame.setVisible(false);
+				frame.dispose();
+
+			}
+		}
 	}
 
-	private class StreamUpdater extends SwingWorker<Void, Void> {
+	private class PropertiesFrame extends JFrame {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+		private final JLabel errorLabel;
+		private final JTextField lsPathTextField;
+		private int screenWidth;
+		private int screenHeight;
+		private JLabel lsPathLabel;
+		private JButton applyButton;
+		private JButton closeButton;
+		private JFrame mainFrame;
+
+		public PropertiesFrame(JFrame frame) {
+			super();
+			Toolkit toolkit = Toolkit.getDefaultToolkit();
+			screenWidth = toolkit.getScreenSize().width / 4;
+			screenHeight = toolkit.getScreenSize().height / 4;
+
+			//
+			this.mainFrame = frame;
+			this.setTitle("Properties");
+			this.setSize(new Dimension(screenWidth, screenHeight));
+			this.setResizable(false);
+			this.setLocationRelativeTo(mainFrame);
+
+			Container main = this.getContentPane();
+			GridBagLayout layout = new GridBagLayout();
+			main.setLayout(layout);
+
+			lsPathLabel = new JLabel("Livestreamer Path:");
+			errorLabel = new JLabel();
+			errorLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			errorLabel.setForeground(Color.RED);
+			lsPathTextField = new JTextField(AppPropertiesLoader.getInstance().getAppProperties()
+					.getValue(AppPropertiesConstants.LIVESTREAMER_PATH));
+			lsPathTextField.setCaretPosition(0);
+			applyButton = new JButton("Apply");
+			applyButton.addMouseListener(new ApplyButtonEvent(this));
+			closeButton = new JButton("Close");
+			closeButton.addMouseListener(new CloseButtonEvent(this));
+
+			GridBagConstraints c = new GridBagConstraints();
+			c.anchor = GridBagConstraints.PAGE_START;
+			c.insets = new Insets(10, 10, 10, 10);
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 1;
+			c.weighty = 1;
+			c.gridwidth = 3;
+			c.gridheight = 1;
+			c.gridx = 0;
+			c.gridy = 0;
+			main.add(lsPathLabel, c);
+			c.anchor = GridBagConstraints.PAGE_START;
+			c.insets = new Insets(10, 0, 10, 10);
+			c.weightx = 100;
+			c.weighty = 1;
+			c.gridwidth = 7;
+			c.gridheight = 1;
+			c.gridx = 3;
+			c.gridy = 0;
+			main.add(lsPathTextField, c);
+			c.anchor = GridBagConstraints.PAGE_END;
+			c.insets = new Insets(0, 0, 0, 5);
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 1;
+			c.weighty = 100;
+			c.gridwidth = 1;
+			c.gridheight = 1;
+			c.gridx = 8;
+			c.gridy = 8;
+			main.add(applyButton, c);
+			c.anchor = GridBagConstraints.PAGE_END;
+			c.insets = new Insets(0, 5, 0, 5);
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 1;
+			c.weighty = 100;
+			c.gridwidth = 1;
+			c.gridheight = 1;
+			c.gridx = 9;
+			c.gridy = 8;
+			main.add(closeButton, c);
+			c.anchor = GridBagConstraints.PAGE_END;
+			c.insets = new Insets(0, 0, 0, 0);
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.weightx = 100;
+			c.weighty = 100;
+			c.gridwidth = 8;
+			c.gridheight = 1;
+			c.gridx = 0;
+			c.gridy = 8;
+			main.add(new JLabel(), c);
+			c.anchor = GridBagConstraints.PAGE_END;
+			c.fill = GridBagConstraints.HORIZONTAL;
+			c.insets = new Insets(5, 5, 5, 5);
+			c.weightx = 0;
+			c.weighty = 0;
+			c.gridwidth = 10;
+			c.gridx = 0;
+			c.gridy = 9;
+			main.add(errorLabel, c);
+
+			this.setVisible(true);
+		}
+
+		class ApplyButtonEvent extends MouseAdapter {
+			private JFrame frame;
+
+			ApplyButtonEvent(JFrame frame) {
+				this.frame = frame;
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				String newLiveStreamerPath = lsPathTextField.getText();
+				if (AppPropertiesLoader.getInstance().getAppProperties()
+						.checkLivestreamerPath(newLiveStreamerPath)) {
+					AppPropertiesLoader
+							.getInstance()
+							.getAppProperties()
+							.setValueAndSaveProperties(AppPropertiesConstants.PROPERTIES_FILE,
+									AppPropertiesConstants.LIVESTREAMER_PATH, newLiveStreamerPath);
+					frame.setVisible(false);
+					frame.dispose();
+					return;
+				}
+				else {
+					errorLabel.setText("Wrong livestreamer path");
+					frame.repaint();
+					frame.revalidate();
+				}
+			}
+		}
+
+		class CloseButtonEvent extends MouseAdapter {
+			private JFrame frame;
+
+			CloseButtonEvent(JFrame frame) {
+				this.frame = frame;
+			}
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				frame.setVisible(false);
+				frame.dispose();
+
+			}
+		}
+	}
+
+	private class StreamsPanelUpdater extends SwingWorker<Void, Void> {
 
 		@Override
 		protected Void doInBackground() {
-			CoreController.updateStreamStore();
+			statusPanel.removeAll();
+			statusPanel.add(BorderLayout.CENTER, statusProgressBar);
+			statusPanel.revalidate();
+			statusPanel.repaint();
+
+			JPanel buttonsPanel = (JPanel) bottomPanel.getComponent(0);
+			buttonsPanel.getComponent(0).setEnabled(false);
+			buttonsPanel.getComponent(1).setEnabled(false);
+			buttonsPanel.getComponent(2).setEnabled(false);
+			buttonsPanel.getComponent(3).setEnabled(false);
+
+			if (CoreController.getStreamStore(String.valueOf(StreamPanelShow.ACTIVE)) != null) {
+				CoreController.updateStreamStore();
+			}
+			else {
+				CoreController.initStreamStore();
+			}
 			return null;
 		}
 
@@ -722,7 +1012,28 @@ class MainFrame extends JFrame {
 			buttonsPanel.getComponent(3).setEnabled(true);
 
 			topPanel.removeAll();
-			topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
+			topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
+			topPanel.revalidate();
+			topPanel.repaint();
+		}
+	}
+
+	private class SingleStreamUpdater extends SwingWorker<Void, Void> {
+		private Stream streamToUpdate;
+
+		SingleStreamUpdater(Stream stream) {
+			this.streamToUpdate = stream;
+		}
+
+		@Override
+		protected Void doInBackground() throws Exception {
+			streamToUpdate.update();
+			return null;
+		}
+
+		protected void done() {
+			topPanel.removeAll();
+			topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
 			topPanel.revalidate();
 			topPanel.repaint();
 		}
@@ -755,37 +1066,61 @@ class MainFrame extends JFrame {
 		}
 	}
 
-	private class DeleteButtonAction implements ActionListener {
+	private class DeleteButtonAction extends MouseAdapter {
 
 		@Override
-		public void actionPerformed(ActionEvent e) {
+		public void mouseClicked(MouseEvent e) {
 			JButton button = (JButton) e.getSource();
 			JPanel parentPanel = (JPanel) button.getParent();
 			final JLabel nameLabel = (JLabel) parentPanel.getComponent(1);
 			if (createDeleteOptionPane() == 0) {
 				CoreController.removeStream(nameLabel.getText());
 				topPanel.removeAll();
-				topPanel.add(BorderLayout.CENTER, createStreamsPanel(currentSize, currentShow));
+				topPanel.add(BorderLayout.CENTER, addStreamsPanel(currentSize, currentShow));
 				topPanel.revalidate();
 				topPanel.repaint();
 			}
-
 		}
-
 	}
 
-	private class StartButtonAction implements ActionListener {
+	private class StartButtonAction extends MouseAdapter {
 
+		StartButtonAction() {
+		}
+
+		@SuppressWarnings("unchecked")
 		@Override
-		public void actionPerformed(ActionEvent e) {
-			JButton button = (JButton) e.getSource();
-			JPanel parentPanel = (JPanel) button.getParent();
-			JLabel nameLabel = (JLabel) parentPanel.getComponent(1);
-			final JComboBox<String> qialityBox = (JComboBox<String>) parentPanel.getComponent(5);
-			final Stream stream = CoreController.getStream(nameLabel.getText());
+		public void mouseClicked(MouseEvent e) {
+			if (AppPropertiesLoader
+					.getInstance()
+					.getAppProperties()
+					.checkLivestreamerPath(
+							AppPropertiesLoader.getInstance().getAppProperties()
+									.getValue(AppPropertiesConstants.LIVESTREAMER_PATH))) {
+				JButton button = (JButton) e.getSource();
+				JPanel parentPanel = (JPanel) button.getParent();
+				JLabel nameLabel = (JLabel) parentPanel.getComponent(1);
+				final JComboBox<String> qialityBox = (JComboBox<String>) parentPanel.getComponent(5);
+				final Stream stream = CoreController.getStream(nameLabel.getText());
 
-			CoreController.startStream(stream, (String) qialityBox.getSelectedItem());
+				CoreController.startStream(nameLabel.getText(), stream, (String) qialityBox.getSelectedItem());
+			}
+			else {
+				createStatusPanelInfoLabel(StatusType.LIVESTREAMER_NOT_SPECIFIED);
+				Timer removeStatusTimer = new Timer(0, new ActionListener() {
 
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						statusPanel.removeAll();
+						statusPanel.revalidate();
+						statusPanel.repaint();
+					}
+					
+				});
+				removeStatusTimer.setInitialDelay(5000);
+				removeStatusTimer.setRepeats(false);
+				removeStatusTimer.start();
+			}
 		}
 	}
 
@@ -797,7 +1132,5 @@ class MainFrame extends JFrame {
 					.saveProperties(AppPropertiesConstants.PROPERTIES_FILE);
 			System.exit(0);
 		}
-
 	}
-
 }

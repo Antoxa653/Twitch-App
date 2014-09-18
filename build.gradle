@@ -16,7 +16,7 @@ subprojects {
 		compile 'org.mockito:mockito-all:1.9.5'		
 		compile 'org.powermock:powermock-module-junit4:1.5.6'
 		compile 'org.powermock:powermock-api-mockito:1.5.5'
-		
+		compile 'com.seaglasslookandfeel:seaglasslookandfeel:0.2'
 		
 	}
 }
@@ -32,5 +32,10 @@ project(':app-gui') {
 	}
 }
 
+project (':app-loader') {
+	dependencies {
+		compile project (':app-common'), project(':app-core'), project(':app-gui')
+	}
+}
 
 

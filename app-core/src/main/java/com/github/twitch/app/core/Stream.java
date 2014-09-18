@@ -1,6 +1,8 @@
 package com.github.twitch.app.core;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -11,7 +13,7 @@ public class Stream implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private static Logger logger = LoggerFactory.getLogger(Stream.class);
+	private static Logger logger = LoggerFactory.getLogger(Stream.class); 
 	private String url = null;
 	private boolean activity = false;
 	private String name = null;
@@ -29,18 +31,21 @@ public class Stream implements Serializable {
 		this.url = url;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Stream update() {
 		Map<String, Object> updatedStream = StreamData.getStreamData(this.getUrl());
 
 		if (updatedStream.get("stream") != null) {
 			Map<String, Object> streamInfo = (Map<String, Object>) updatedStream.get("stream");
 			Map<String, Object> channelInfo = (Map<String, Object>) streamInfo.get("channel");
-			this.status = (String) channelInfo.get("status");			
+			this.status = (String) channelInfo.get("status");
+			this.name = (String) channelInfo.get("name");
 			this.currentGame = (String) streamInfo.get("game");
 			this.viewers = (long) streamInfo.get("viewers");
 			this.activity = true;
 		}
 		else {
+			this.name = null;
 			this.status = null;
 			this.currentGame = null;
 			this.viewers = 0;
@@ -75,7 +80,8 @@ public class Stream implements Serializable {
 
 	@Override
 	public String toString() {
-		return "Stream [url=" + url + ", state=" + activity + ", name=" + name + ", status=" + status + ", currentGame="
+		return "Stream [url=" + url + ", state=" + activity + ", name=" + name + ", status=" + status
+				+ ", currentGame="
 				+ currentGame + ", viewers=" + viewers + "]";
 	}
 
@@ -126,6 +132,16 @@ public class Stream implements Serializable {
 		if (viewers != other.viewers)
 			return false;
 		return true;
+	}
+
+	public static boolean checkUrl(String url) {
+		URL newUrl = null;
+		try {
+			newUrl = new URL(url);
+		} catch (MalformedURLException e) {
+			logger.error("Invalide URL");
+		}
+		return newUrl != null;
 	}
 
 }

@@ -1,79 +1,47 @@
 package com.github.twitch.app.core;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Collection;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public final class CoreController {
-	private static Logger logger = LoggerFactory.getLogger(CoreController.class);
 
 	private CoreController() {
 	}
 
 	public static void updateStreamStore() {
-		Map<String, Stream> streamStore = StreamStore.getStreamsStore();
-		Collection<Stream> streamStoreValues = streamStore.values();
-		for (Stream stream : streamStoreValues) {
-			new Thread(new StreamStoreUpdater(stream)).start();
-		}
+		StreamsStore.update();
 	}
 
 	public static void initStreamStore() {
-		StreamStore.init(CoreConstants.STREAMS_FILE);
+		StreamsStore.init(CoreConstants.STREAMS_FILE);
 	}
 
 	public static Map<String, Stream> getStreamStore(String mode) {
-		Map<String, Stream> customStreamStoreMap;
-		switch (mode) {
-		case "ALL":
-			customStreamStoreMap = StreamStore.getStreamsStore();
-			break;
-		case "ACTIVE":
-			customStreamStoreMap = StreamStore.getActiveStreamsStore();
-			break;
-		case "UNACTIVE":
-			customStreamStoreMap = StreamStore.getInactiveStreamsStore();
-			break;
-		default:
-			customStreamStoreMap = StreamStore.getStreamsStore();
-			break;
-		}
-		return customStreamStoreMap;
+		return StreamsStore.getStreamsStore(mode);
 	}
 
 	public static void removeStream(String streamName) {
-		StreamStore.removeStream(streamName);
+		StreamsStore.removeStream(streamName);
 	}
 
 	public static void addStream(String streamName, Stream stream) {
-		StreamStore.addStream(streamName, stream);
+		StreamsStore.addStream(streamName, stream);
 	}
 
 	public static Stream getStream(String streamName) {
-		return StreamStore.getStream(streamName);
+		return StreamsStore.getStream(streamName);
 	}
 
 	public static void saveStreamStore() {
-		StreamStore.save(CoreConstants.STREAMS_FILE);
+		StreamsStore.save(CoreConstants.STREAMS_FILE);
 	}
 
-	public static void startStream(Stream stream, String quality) {
-		StreamStarter.start(stream, quality);
+	public static void startStream(String key, Stream stream, String quality) {
+		StreamStarter.start(key, stream, quality);
 	}
 
 	public static boolean checkUrl(String url) {
-		URL newUrl = null;
-		try {
-			newUrl = new URL(url);
-		} catch (MalformedURLException e) {
-			logger.error("Invalide URL");
-		}
-		return newUrl != null;
+		return Stream.checkUrl(url);
 
-	}
+	}	
 
 }

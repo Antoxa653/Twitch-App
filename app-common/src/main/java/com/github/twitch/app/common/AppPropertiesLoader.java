@@ -5,7 +5,7 @@ public final class AppPropertiesLoader {
 	private static AppProperties properties;
 
 	private AppPropertiesLoader() {
-		properties = AppProperties.loadProperties(AppPropertiesConstants.PROPERTIES_FILE);
+		properties = AppProperties.initProperties(AppPropertiesConstants.PROPERTIES_FILE);
 	}
 
 	public static AppPropertiesLoader getInstance() {

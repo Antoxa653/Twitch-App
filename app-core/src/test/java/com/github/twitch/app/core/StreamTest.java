@@ -27,7 +27,7 @@ public class StreamTest {
 		oldStream = new Stream("http://www.twitch.tv/followjotm", false, "followjotm", null, null, 0);
 		updatedActiveStream = new Stream("http://www.twitch.tv/followjotm", true, "followjotm", "JotM",
 				"Dota 2", 4375);
-		updatedUnactiveStream = new Stream("http://www.twitch.tv/followjotm", false, "followjotm", null, null, 0);
+		updatedUnactiveStream = new Stream("http://www.twitch.tv/followjotm", false, null, null, null, 0);
 
 		//init updatedActiveStreamMap
 		updatedActiveStreamMap = new HashMap<String, Object>();

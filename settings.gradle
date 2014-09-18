@@ -1,1 +1,1 @@
-include 'app-core', 'app-common', 'app-gui'
+include 'app-core', 'app-common', 'app-gui', 'app-loader'

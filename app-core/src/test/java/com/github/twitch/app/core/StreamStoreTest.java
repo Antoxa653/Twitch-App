@@ -27,29 +27,29 @@ public class StreamStoreTest {
 		testStream5 = new Stream("http:\\twitch.tv\\funnik", true, "Funnik", "Funnik play dota",
 				"Dota2", 6000);
 
-		StreamStore.init(streamStoreTestFile);
-		StreamStore.addStream("Dendi", testStream1);
-		StreamStore.addStream("Puppey", testStream2);
-		StreamStore.addStream("Xboct", testStream3);
-		StreamStore.addStream("Kuroky", testStream4);
-		StreamStore.addStream("Funnik", testStream5);
+		StreamsStore.init(streamStoreTestFile);
+		StreamsStore.addStream("Dendi", testStream1);
+		StreamsStore.addStream("Puppey", testStream2);
+		StreamsStore.addStream("Xboct", testStream3);
+		StreamsStore.addStream("Kuroky", testStream4);
+		StreamsStore.addStream("Funnik", testStream5);
 	}
 
 	@After
 	public void clearInvirionment() {
-		StreamStore.removeAll();
+		StreamsStore.removeAll();
 		streamStoreTestFile.deleteOnExit();
 	}
 
 	@Test
 	public void saveInitTest() {
-		StreamStore.save(streamStoreTestFile);
-		StreamStore.removeAll();
-		StreamStore.init(streamStoreTestFile);
-		Assert.assertEquals(testStream1, StreamStore.getStream("Dendi"));
-		Assert.assertEquals(testStream2, StreamStore.getStream("Puppey"));
-		Assert.assertEquals(testStream3, StreamStore.getStream("Xboct"));
-		Assert.assertEquals(testStream4, StreamStore.getStream("Kuroky"));
-		Assert.assertEquals(testStream5, StreamStore.getStream("Funnik"));
+		StreamsStore.save(streamStoreTestFile);
+		StreamsStore.removeAll();
+		StreamsStore.init(streamStoreTestFile);
+		Assert.assertEquals(testStream1, StreamsStore.getStream("Dendi"));
+		Assert.assertEquals(testStream2, StreamsStore.getStream("Puppey"));
+		Assert.assertEquals(testStream3, StreamsStore.getStream("Xboct"));
+		Assert.assertEquals(testStream4, StreamsStore.getStream("Kuroky"));
+		Assert.assertEquals(testStream5, StreamsStore.getStream("Funnik"));
 	}
 }

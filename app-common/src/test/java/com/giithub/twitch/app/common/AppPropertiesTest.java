@@ -33,7 +33,7 @@ public class AppPropertiesTest {
 
 	@Test
 	public void loadPropertiesTest() {
-		AppProperties appProperties = AppProperties.loadProperties(testPropertiesFile);
+		AppProperties appProperties = AppProperties.initProperties(testPropertiesFile);
 		Assert.assertEquals("C:\\", appProperties.getValue(AppPropertiesConstants.LIVESTREAMER_PATH));
 		Assert.assertEquals("ALL", appProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SHOW));
 		Assert.assertEquals("MEDIUM", appProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SIZE));
@@ -41,12 +41,12 @@ public class AppPropertiesTest {
 
 	@Test
 	public void savePropertiesTest() {
-		AppProperties appProperties = AppProperties.loadProperties(testPropertiesFile);		
+		AppProperties appProperties = AppProperties.initProperties(testPropertiesFile);		
 		appProperties.setValue(AppPropertiesConstants.LIVESTREAMER_PATH, "D:\\");
 		appProperties.setValue(AppPropertiesConstants.STREAM_PANEL_SHOW, "OFFLINE");
 		appProperties.setValue(AppPropertiesConstants.STREAM_PANEL_SIZE, "HIGH");
 		appProperties.saveProperties(testPropertiesFile);
-		AppProperties.loadProperties(testPropertiesFile);
+		AppProperties.initProperties(testPropertiesFile);
 		Assert.assertEquals("D:\\", appProperties.getValue(AppPropertiesConstants.LIVESTREAMER_PATH));
 		Assert.assertEquals("OFFLINE", appProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SHOW));
 		Assert.assertEquals("HIGH", appProperties.getValue(AppPropertiesConstants.STREAM_PANEL_SIZE));
