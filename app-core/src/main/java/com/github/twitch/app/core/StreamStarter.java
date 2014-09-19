@@ -24,7 +24,7 @@ final class StreamStarter {
 		try {
 			Runtime.getRuntime().exec(
 					"cmd /c start " + streamFile.toString());
-			logger.debug("--- Stream " + key + "was started ---");
+			logger.debug("--- Stream " + key + " was started ---");
 		} catch (IOException e) {
 			logger.error("Error while opening stream file:" + streamFile, e);
 		}
@@ -49,7 +49,7 @@ final class StreamStarter {
 			sb.append("@echo off");
 			pw.println(sb.toString());
 			sb.setLength(0);
-			logger.debug("--- Creatiion of stream file finished ---");
+			logger.debug("--- Creation of stream file finished ---");
 		} catch (FileNotFoundException e) {
 			logger.error(CoreConstants.LIVESTREAMER_BAT_FILE.getName() + " file was not found in: "
 					+ CoreConstants.LIVESTREAMER_BAT_PATH, e);

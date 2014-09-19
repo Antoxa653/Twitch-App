@@ -1,5 +1,5 @@
 jar {
   manifest {
-    attributes 'Implementation-Title': 'Twitch Application', 'Implementation-Version': version
+    attributes ('Implementation-Title': 'TSV', 'Implementation-Version': 1.0)
   }
 }

@@ -2,13 +2,13 @@ subprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
 	
-	sourceCompatibility = '1.8'
+	sourceCompatibility = '1.7'
 	group = 'com.github.twitch.app'
 	version = '1.0.0-SNAPSHOT'
 
 	repositories {
-		mavenCentral()		
-	}
+		mavenCentral()			
+	}		
 	dependencies {		
 		compile 'ch.qos.logback:logback-classic:1.1.2'		
 		compile 'com.googlecode.json-simple:json-simple:1.1'		
@@ -16,26 +16,32 @@ subprojects {
 		compile 'org.mockito:mockito-all:1.9.5'		
 		compile 'org.powermock:powermock-module-junit4:1.5.6'
 		compile 'org.powermock:powermock-api-mockito:1.5.5'
-		compile 'com.seaglasslookandfeel:seaglasslookandfeel:0.2'
-		
+		compile 'com.seaglasslookandfeel:seaglasslookandfeel:0.2'		
 	}
+	task copy(type:Copy){	
+	from 'build/libs'
+	into '../app-loader'
 }
-
+}
 project(':app-core') {
 	dependencies {
 		compile project(':app-common')
-	}  
-}
-project(':app-gui') {
-	dependencies {
-		compile project(':app-core')
 	}
 }
 
-project (':app-loader') {
+project(':app-gui') {	
 	dependencies {
-		compile project (':app-common'), project(':app-core'), project(':app-gui')
+		compile project(':app-core')
+	}	
+}
+project(":app-loader") {
+	dependencies {
+		compile project (':app-gui')
 	}
+}
+task shadow(type:GradleBuild) {
+buildFile = 'app-loader/build.gradle'
+tasks = ['shadowJar']
 }
 
 

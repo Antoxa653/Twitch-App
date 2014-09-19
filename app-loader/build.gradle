@@ -1,5 +1,13 @@
-jar {
-  manifest {
-    attributes 'Implementation-Title': 'Twitch Application', 'Implementation-Version': version
-  }
+apply plugin:'java'
+apply plugin: 'eclipse'
+apply plugin: 'application'
+apply plugin: 'com.github.johnrengelman.shadow'
+
+mainClassName = "com.github.twitch.app.loader.Loader"
+
+buildscript{
+repositories {jcenter() }
+dependencies {
+    classpath 'com.github.jengelman.gradle.plugins:shadow:1.1.1'
+}
 }

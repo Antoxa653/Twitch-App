@@ -134,7 +134,7 @@ final class StreamsStore {
 
 	static void update() {
 		logger.debug("--- Began the updaiting of StreamStore  ---");
-		Queue<Stream> streamStoreValues = new LinkedList<Stream>();
+		final Queue<Stream> streamStoreValues = new LinkedList<Stream>();
 		for (String stream : streamsStore.keySet()) {
 			streamStoreValues.add(streamsStore.get(stream));
 		}
