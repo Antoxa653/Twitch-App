@@ -14,6 +14,7 @@ public final class Loader {
 		
 		LookAndFeel iStyle = new LookAndFeel();
 		iStyle.init();
+		
 		AppPropertiesLoader.getInstance();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {

@@ -2,7 +2,7 @@ subprojects {
 	apply plugin: 'java'
 	apply plugin: 'eclipse'
 	
-	sourceCompatibility = '1.7'
+	sourceCompatibility = '1.8'
 	group = 'com.github.twitch.app'
 	version = '1.0.0-SNAPSHOT'
 
